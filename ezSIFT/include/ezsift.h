@@ -168,31 +168,31 @@ int row_filter_transpose(float *src, float *dst, int w, int h, float *coef1d,
 
 // Build image octaves during the initialization.
 int build_octaves(const Image<unsigned char> &image,
-                  std::vector<Image<unsigned char>> &octaves, int firstOctave,
+                  std::vector<Image<unsigned char> > &octaves, int firstOctave,
                   int nOctaves);
 
 // Compute Gaussian filter coefficients for Gaussian Blur.
-std::vector<std::vector<float>> compute_gaussian_coefs(int nOctaves,
+std::vector<std::vector<float> > compute_gaussian_coefs(int nOctaves,
                                                        int nGpyrLayers);
 
 // Build Gaussian pyramid.
-int build_gaussian_pyramid(std::vector<Image<unsigned char>> &octaves,
-                           std::vector<Image<float>> &gpyr, int nOctaves,
+int build_gaussian_pyramid(std::vector<Image<unsigned char> > &octaves,
+                           std::vector<Image<float> > &gpyr, int nOctaves,
                            int nGpyrLayers);
 
 // Build DoG pyramid.
-int build_dog_pyr(std::vector<Image<float>> &gpyr,
-                  std::vector<Image<float>> &dogPyr, int nOctaves,
+int build_dog_pyr(std::vector<Image<float> > &gpyr,
+                  std::vector<Image<float> > &dogPyr, int nOctaves,
                   int nDogLayers);
 
 // Build gradient and rotation pyramid.
-int build_grd_rot_pyr(std::vector<Image<float>> &gpyr,
-                      std::vector<Image<float>> &grdPyr,
-                      std::vector<Image<float>> &rotPyr, int nOctaves,
+int build_grd_rot_pyr(std::vector<Image<float> > &gpyr,
+                      std::vector<Image<float> > &grdPyr,
+                      std::vector<Image<float> > &rotPyr, int nOctaves,
                       int nLayers);
 
 // Refine local extrema.
-bool refine_local_extrema(std::vector<Image<float>> &dogPyr, int nOctaves,
+bool refine_local_extrema(std::vector<Image<float> > &dogPyr, int nOctaves,
                           int nDogLayers, SiftKeypoint &kpt);
 
 // Export keypoint list to a file.
@@ -208,14 +208,14 @@ float compute_orientation_hist(const Image<float> &image, SiftKeypoint &kpt,
  *  SIFT Core Functions
  ***************************************/
 // Detect keypoints.
-int detect_keypoints(std::vector<Image<float>> &dogPyr,
-                     std::vector<Image<float>> &grdPyr,
-                     std::vector<Image<float>> &rotPyr, int nOctaves,
+int detect_keypoints(std::vector<Image<float> > &dogPyr,
+                     std::vector<Image<float> > &grdPyr,
+                     std::vector<Image<float> > &rotPyr, int nOctaves,
                      int nDogLayers, std::list<SiftKeypoint> &kpt_list);
 
 // Extract descriptor.
-int extract_descriptor(std::vector<Image<float>> &grdPyr,
-                       std::vector<Image<float>> &rotPyr, int nOctaves,
+int extract_descriptor(std::vector<Image<float> > &grdPyr,
+                       std::vector<Image<float> > &rotPyr, int nOctaves,
                        int nGpyrLayers, std::list<SiftKeypoint> &kpt_list);
 
 /****************************************

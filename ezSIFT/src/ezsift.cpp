@@ -59,7 +59,7 @@ void double_original_image(bool doubleFirstOctave)
 
 // Compute octaves to build Gaussian Pyramid.
 int build_octaves(const Image<unsigned char> &image,
-                  std::vector<Image<unsigned char>> &octaves, int firstOctave,
+                  std::vector<Image<unsigned char> > &octaves, int firstOctave,
                   int nOctaves)
 {
     int w = image.w;
@@ -150,12 +150,12 @@ int row_filter_transpose(float *src, float *dst, int w, int h, float *coef1d,
 // Build Gaussian pyramid using recursive method.
 // The first layer is downsampled from last octave, layer=nLayers.
 // All n-th layer is Gaussian blur from (n-1)-th layer.
-int build_gaussian_pyramid(std::vector<Image<unsigned char>> &octaves,
-                           std::vector<Image<float>> &gpyr, int nOctaves,
+int build_gaussian_pyramid(std::vector<Image<unsigned char> > &octaves,
+                           std::vector<Image<float> > &gpyr, int nOctaves,
                            int nGpyrLayers)
 {
     int nLayers = nGpyrLayers - 3;
-    std::vector<std::vector<float>> gaussian_coefs =
+    std::vector<std::vector<float> > gaussian_coefs =
         compute_gaussian_coefs(nOctaves, nGpyrLayers);
 
     int w, h;
@@ -185,7 +185,7 @@ int build_gaussian_pyramid(std::vector<Image<unsigned char>> &octaves,
 }
 
 // For build_gaussian_pyramid()
-std::vector<std::vector<float>> compute_gaussian_coefs(int nOctaves,
+std::vector<std::vector<float> > compute_gaussian_coefs(int nOctaves,
                                                        int nGpyrLayers)
 {
     // Compute all sigmas for different layers
@@ -203,7 +203,7 @@ std::vector<std::vector<float>> compute_gaussian_coefs(int nOctaves,
         sig[i] = sqrtf(sigma * sigma - sigma_pre * sigma_pre);
     }
 
-    std::vector<std::vector<float>> gaussian_coefs(nGpyrLayers);
+    std::vector<std::vector<float> > gaussian_coefs(nGpyrLayers);
     for (int i = 0; i < nGpyrLayers; i++) {
         // Compute Gaussian filter coefficients
         float factor = SIFT_GAUSSIAN_FILTER_RADIUS;
@@ -226,8 +226,8 @@ std::vector<std::vector<float>> compute_gaussian_coefs(int nOctaves,
 }
 
 // Build difference of Gaussian pyramids.
-int build_dog_pyr(std::vector<Image<float>> &gpyr,
-                  std::vector<Image<float>> &dogPyr, int nOctaves,
+int build_dog_pyr(std::vector<Image<float> > &gpyr,
+                  std::vector<Image<float> > &dogPyr, int nOctaves,
                   int nDogLayers)
 {
     int nGpyrLayers = nDogLayers + 1;
@@ -260,9 +260,9 @@ int build_dog_pyr(std::vector<Image<float>> &gpyr,
 }
 
 // Build gradient pyramids.
-int build_grd_rot_pyr(std::vector<Image<float>> &gpyr,
-                      std::vector<Image<float>> &grdPyr,
-                      std::vector<Image<float>> &rotPyr, int nOctaves,
+int build_grd_rot_pyr(std::vector<Image<float> > &gpyr,
+                      std::vector<Image<float> > &grdPyr,
+                      std::vector<Image<float> > &rotPyr, int nOctaves,
                       int nLayers)
 {
     int nGpyrLayers = nLayers + 3;
@@ -560,9 +560,9 @@ float compute_orientation_hist_with_gradient(const Image<float> &grdImage,
 }
 
 // Keypoint detection.
-int detect_keypoints(std::vector<Image<float>> &dogPyr,
-                     std::vector<Image<float>> &grdPyr,
-                     std::vector<Image<float>> &rotPyr, int nOctaves,
+int detect_keypoints(std::vector<Image<float> > &dogPyr,
+                     std::vector<Image<float> > &grdPyr,
+                     std::vector<Image<float> > &rotPyr, int nOctaves,
                      int nDogLayers, std::list<SiftKeypoint> &kpt_list)
 {
     float *currData;
@@ -724,7 +724,7 @@ int detect_keypoints(std::vector<Image<float>> &dogPyr,
 }
 
 // Refine local keypoint extrema.
-bool refine_local_extrema(std::vector<Image<float>> &dogPyr, int nOctaves,
+bool refine_local_extrema(std::vector<Image<float> > &dogPyr, int nOctaves,
                           int nDogLayers, SiftKeypoint &kpt)
 {
     int nGpyrLayers = nDogLayers + 1;
@@ -887,8 +887,8 @@ bool refine_local_extrema(std::vector<Image<float>> &dogPyr, int nOctaves,
 
 // Extract descriptor
 // 1. Unroll the tri-linear part.
-int extract_descriptor(std::vector<Image<float>> &grdPyr,
-                       std::vector<Image<float>> &rotPyr, int nOctaves,
+int extract_descriptor(std::vector<Image<float> > &grdPyr,
+                       std::vector<Image<float> > &rotPyr, int nOctaves,
                        int nGpyrLayers, std::list<SiftKeypoint> &kpt_list)
 {
     // Number of subregions, default 4x4 subregions.
@@ -1169,7 +1169,7 @@ int sift_cpu(const Image<unsigned char> &image,
                    firstOctave; // 2 or 3, need further research
 
     // Build image octaves
-    std::vector<Image<unsigned char>> octaves(nOctaves);
+    std::vector<Image<unsigned char> > octaves(nOctaves);
     build_octaves(image, octaves, firstOctave, nOctaves);
 
 #if (DUMP_OCTAVE_IMAGE == 1)
@@ -1181,7 +1181,7 @@ int sift_cpu(const Image<unsigned char> &image,
 #endif
 
     // Build Gaussian pyramid
-    std::vector<Image<float>> gpyr(nOctaves * nGpyrLayers);
+    std::vector<Image<float> > gpyr(nOctaves * nGpyrLayers);
     build_gaussian_pyramid(octaves, gpyr, nOctaves, nGpyrLayers);
 
 #if (DUMP_GAUSSIAN_PYRAMID_IMAGE == 1)
@@ -1197,7 +1197,7 @@ int sift_cpu(const Image<unsigned char> &image,
 #endif
 
     // Build DoG pyramid
-    std::vector<Image<float>> dogPyr(nOctaves * nDogLayers);
+    std::vector<Image<float> > dogPyr(nOctaves * nDogLayers);
     build_dog_pyr(gpyr, dogPyr, nOctaves, nDogLayers);
 
 #if (DUMP_DOG_IMAGE == 1)
@@ -1213,8 +1213,8 @@ int sift_cpu(const Image<unsigned char> &image,
 #endif
 
     // Build gradient and rotation pyramids
-    std::vector<Image<float>> grdPyr(nOctaves * nGpyrLayers);
-    std::vector<Image<float>> rotPyr(nOctaves * nGpyrLayers);
+    std::vector<Image<float> > grdPyr(nOctaves * nGpyrLayers);
+    std::vector<Image<float> > rotPyr(nOctaves * nGpyrLayers);
     build_grd_rot_pyr(gpyr, grdPyr, rotPyr, nOctaves, nLayers);
 
     // Detect keypoints

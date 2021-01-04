@@ -1,0 +1,79 @@
+<html>
+<body>
+<div><img id="i1" src="./local/1.png" style="width:600px;" /></div>
+<div><img id="i2" src="./local/2.png" style="width:600px;" /></div>
+<script src="./dist/ezsift.js"></script>
+<script>
+   var i1 = document.getElementById('i1');
+   var i2 = document.getElementById('i2');
+   var c1 = document.createElement('canvas'), p1 = c1.getContext('2d');
+   var c2 = document.createElement('canvas'), p2 = c2.getContext('2d');
+   c1.width = i1.offsetWidth; c1.height = i1.offsetHeight;
+   c2.width = i2.offsetWidth; c2.height = i2.offsetHeight;
+   p1.drawImage(i1, 0, 0, i1.offsetWidth, i1.offsetHeight);
+   p2.drawImage(i2, 0, 0, i2.offsetWidth, i2.offsetHeight);
+   var pd1 = p1.getImageData(0, 0, i1.offsetWidth, i1.offsetHeight);
+   var pd2 = p2.getImageData(0, 0, i2.offsetWidth, i2.offsetHeight);
+   console.log(pd1, pd2);
+
+   var ei1 = Module._createImage(pd1.width, pd1.height);
+   var ei2 = Module._createImage(pd2.width, pd2.height);
+   for (var i = 0, n = pd1.height; i < n; i++)
+      for (var j = 0, m = pd1.width; j < m; j++)
+         Module._putPixel(ei1, j, i, pd1.data[4*(i * pd1.width + j)]);
+   for (var i = 0, n = pd2.height; i < n; i++)
+      for (var j = 0, m = pd2.width; j < m; j++)
+         Module._putPixel(ei2, j, i, pd2.data[4*(i * pd2.width + j)]);
+
+   Module._extractFeature(ei1);
+   Module._backupKeypoints(0);
+   Module._extractFeature(ei2);
+   Module._backupKeypoints(1);
+
+   Module._keypointsMatch(0, 1);
+   Module._matchBegin();
+   var matches = [];
+   Module._matchBegin();
+   for (var i = 0, n = Module._getMatchN(); i < n; i++) {
+      var obj = {};
+      obj.r1 = Module._matchR1(); obj.c1 = Module._matchC1();
+      obj.r2 = Module._matchR2(); obj.c2 = Module._matchC2();
+      matches.push(obj);
+      Module._matchNext();
+   }
+   console.log(matches);
+
+   Module._disposeImage(ei1);
+   Module._disposeImage(ei2);
+
+   if (matches.length) {
+      var dx = 0, dy = 0, mn = matches.length;
+      for (var i = 0, n = mn; i < n; i++) {
+         var m = matches[i];
+         dx += m.c2 - m.c1;
+         dy += m.r2 - m.r1;
+      }
+      dx /= mn; dy /= mn;
+      console.log('avg shift:', dx, dy, '(need fine turning)');
+   }
+
+   var r = document.createElement('canvas');
+   var w = Math.max(pd1.width, pd1.width), h = pd1.height + pd2.height;
+   r.width = w; r.height = h
+   r.style.width = w + 'px'; r.style.height = h + 'px';
+   var rp = r.getContext('2d');
+   rp.drawImage(i1, 0, 0,          pd1.width, pd1.height);
+   rp.drawImage(i2, 0, pd1.height, pd2.width, pd2.height);
+   rp.strokeStyle = 'yellow';
+   matches.forEach(function (m) {
+      rp.moveTo(m.c1, m.r1);
+      rp.lineTo(m.c2, m.r2 + pd1.height);
+      rp.stroke();
+   });
+
+   i1.parentNode.style.display = 'none';
+   i2.parentNode.style.display = 'none';
+   document.body.appendChild(r);
+</script>
+</body>
+</html>
